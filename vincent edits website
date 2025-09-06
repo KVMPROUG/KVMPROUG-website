@@ -1,0 +1,935 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KVM Pro Ug Platform</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+  --kvm-blue: #337ab7;
+  --kvm-gold: #ffd700;
+  --kvm-bg: #f5f5fa;
+  --kvm-dark: #212121;
+  --radius: 10px;
+}
+body { font-family: 'Segoe UI', Arial, sans-serif; margin:0; background:var(--kvm-bg);}
+.hidden { display:none!important;}
+header { background:var(--kvm-dark); color:#fff; box-shadow:0 3px 8px rgba(0,0,0,0.05);}
+.header-box { display:flex; align-items:center; max-width:1200px; margin:0 auto; padding:8px 16px;}
+.logo { height:40px; margin-right:12px; border-radius:8px;}
+.header-title { font-size:1.4em; font-weight:bold; margin-right:20px;}
+.header-links { color:#fff; text-decoration:none; margin:0 8px; font-weight:500; position:relative; padding-bottom:4px; transition:color .2s;}
+.header-links.active { color:var(--kvm-gold);}
+.tab-indicator { display:block; height:4px; width:24px; background:var(--kvm-gold); border-radius:2px; position:absolute; left:50%; transform:translateX(-50%); bottom:-4px;}
+.header-links:hover { color:var(--kvm-gold);}
+.logout-btn { background:var(--kvm-blue); color:#fff; border:none; border-radius:6px; padding:8px 16px; margin-left:12px; font-size:14px; cursor:pointer;}
+.logout-btn:hover { background:#235a96;}
+.signup-btn, .guest-btn, .google-btn {margin-top:8px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--kvm-blue);border:1px solid #337ab7;border-radius:6px;padding:8px 16px;font-size:1em;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.09);}
+.signup-btn:hover, .guest-btn:hover, .google-btn:hover {background:#f0f4fa;}
+.google-icon {width:22px;height:22px;margin-right:6px;}
+.guest-icon {width:21px;height:21px;margin-right:6px;}
+main { max-width:1100px; margin:24px auto; padding:0 16px;}
+.featured-content { background:#fff; padding:32px; border-radius:var(--radius); box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:24px; text-align:center;}
+.latest-uploads { margin-bottom:32px;}
+.latest-uploads h2 { font-size:1.3em; margin-bottom:18px;}
+.uploads-list { display:flex; gap:18px; flex-wrap:wrap;}
+.upload-card { background:#fff; padding:18px; border-radius:var(--radius); box-shadow:0 1px 4px rgba(0,0,0,0.06); flex:0 0 280px; text-align:left;}
+.upload-card img { width:100%; border-radius:8px;}
+.upload-card h3 { margin:10px 0 4px 0; font-size:1.1em;}
+.upload-card p { margin:0; font-size:0.98em; color:#555;}
+.cta-section { background:var(--kvm-blue); color:#fff; border-radius:8px; padding:24px; text-align:center; margin-bottom:36px;}
+.login-dialog { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.12); display:flex; align-items:center; justify-content:center; z-index:3000;}
+.login-dialog-inner { background:#fff; color:#222; border-radius:12px; box-shadow:0 4px 32px rgba(0,0,0,0.12); padding:32px 32px 28px 32px; min-width:320px; max-width:380px; text-align:center;}
+.login-dialog-inner .logo { height:56px; margin-bottom:10px;}
+.login-dialog-inner .site-title { font-size:1.4em; font-weight:bold; margin-bottom:4px;}
+.login-dialog-inner .bio { font-size:1em; color:var(--kvm-blue); margin-bottom:18px;}
+.login-dialog-inner form { margin-top:10px;}
+.login-dialog-inner label { display:block; margin-bottom:4px; text-align:left;}
+.login-dialog-inner input[type="text"], .login-dialog-inner input[type="password"] { width:100%; padding:7px 10px; margin-bottom:13px; border-radius:6px; border:1px solid #444; background:#f2f2f2; color:#222; font-size:1em;}
+.login-dialog-inner .lowerthird { background:rgba(0,0,0,0.07); color:#222; padding:7px 10px; border-radius:7px; font-size:15px; width:100%; margin-top:5px; box-sizing:border-box; text-align:center;}
+.login-dialog-inner button[type="submit"] { background:var(--kvm-blue); color:#fff; font-weight:bold; border:none; border-radius:6px; padding:8px 18px; font-size:1em; cursor:pointer; margin-top:10px;}
+.login-dialog-inner button[type="submit"]:hover { background:#235a96;}
+.login-dialog-inner #login-error { color:#ff4d4d; margin-top:4px; font-size:0.98em; display:none;}
+.explore-section { margin-bottom:32px; animation:fadeIn .7s;}
+.explore-header { font-size:1.3em; margin-bottom:12px;}
+.explore-search-bar { width:100%; margin-bottom:18px; padding:8px 14px; border-radius:8px; border:1px solid #ddd; font-size:16px;}
+.explore-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:18px;}
+.explore-card { background:#fff; border-radius:var(--radius); box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:10px 10px 18px 10px; text-align:center; transition:box-shadow .2s;}
+.explore-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.12);}
+.explore-title { font-weight:bold; margin:10px 0 4px 0;}
+.explore-video { width:100%; border-radius:8px; min-height:140px;}
+.explore-comments { margin-top:12px;}
+.explore-comment { background:var(--kvm-bg); border-radius:6px; padding:6px; margin-bottom:4px; font-size:0.98em;}
+.explore-comment-views { color:#337ab7; font-size:0.95em; float:right;}
+.upload-section { margin-bottom:32px; animation:fadeIn .7s;}
+.upload-header { font-size:1.3em; margin-bottom:12px;}
+#upload-form { background:#fff; border-radius:var(--radius); box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:24px; max-width:520px; margin:auto;}
+#upload-form label { font-weight:bold;}
+#file-input { margin-bottom:10px;}
+#file-preview { margin-bottom:15px; display:flex; flex-wrap:wrap; gap:10px;}
+#file-preview img, #file-preview video { width:80px; height:auto; border-radius:8px;}
+#file-preview audio { width:160px;}
+#upload-success { color:#080; font-weight:bold; margin-top:10px; display:none;}
+.uploaded-list { margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
+.uploaded-card { background:#fff; border-radius:var(--radius); box-shadow:0 1px 4px rgba(0,0,0,0.06); padding:16px; margin-bottom:8px; position:relative; animation:fadeIn .7s;}
+.uploaded-title { font-weight:bold; margin-bottom:8px;}
+.uploaded-media { margin-bottom:8px;}
+.upload-reactions { margin-bottom:4px;}
+.upload-reactions button { margin-right:6px; background:var(--kvm-bg); border:1px solid #ccc; border-radius:4px; cursor:pointer;}
+.upload-comments { margin-top:8px;}
+.upload-comments-list { margin-bottom:8px;}
+.upload-comments-list div { background:var(--kvm-bg); border-radius:4px; margin-bottom:2px; padding:2px 6px;}
+.upload-comments-form { display:flex; gap:6px;}
+.upload-comments-form input { flex:1; border-radius:4px; border:1px solid #ccc; padding:4px;}
+.upload-comments-form button { background:var(--kvm-blue); color:#fff; border:none; border-radius:4px; padding:4px 10px;}
+.upload-comments-views { color:var(--kvm-blue); font-size:0.95em; float:right;}
+.chats-section { margin-bottom:32px; animation:fadeIn .7s;}
+.chats-header { font-size:1.3em; margin-bottom:14px;}
+.chats-list { display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
+.chats-user-card { background:#fff; border-radius:var(--radius); box-shadow:0 1px 4px rgba(0,0,0,0.06); padding:16px;text-align:center;cursor:pointer;transition:box-shadow .2s;position:relative;}
+.chats-user-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.12);background:#fafaff;}
+.chats-user-avatar { width:48px; height:48px; border-radius:50%; margin-bottom:6px;}
+.chats-user-name { font-weight:bold;}
+.chats-user-status { font-size:0.97em;color:var(--kvm-blue);}
+.chats-user-followers {color:#337ab7;font-size:0.97em;font-weight:bold;}
+.chats-blue-tick {display:inline-block;width:22px;height:22px;vertical-align:middle;}
+.chats-blue-tick svg {width:100%;height:100%;}
+.chats-gold-tick {display:inline-block;width:22px;height:22px;vertical-align:middle;}
+.chats-gold-tick svg {width:100%;height:100%;}
+.chats-profile-btn {margin-top:8px;background:var(--kvm-blue);color:#fff;border:none;border-radius:5px;padding:6px 18px;cursor:pointer;}
+.chat-window-bg {position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;z-index:4000;animation:fadeIn .5s;}
+.chat-window {background:#fff;border-radius:var(--radius);box-shadow:0 4px 32px rgba(0,0,0,0.12);width:340px;max-width:96vw;min-height:360px;display:flex;flex-direction:column;overflow:hidden;animation:slideUp .6s;}
+@keyframes slideUp {from{transform:translateY(60px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.chat-header {background:var(--kvm-blue);color:#fff;padding:12px;text-align:center;}
+.chat-messages {flex:1;overflow-y:auto;padding:12px;background:#f7f8fa;}
+.chat-msg-row {margin-bottom:8px;display:flex;}
+.chat-msg-row.me {justify-content:flex-end;}
+.chat-msg-bubble {padding:8px 12px;border-radius:8px;max-width:75%;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+.chat-msg-row.me .chat-msg-bubble {background:var(--kvm-blue);color:#fff;border-bottom-right-radius:2px;position:relative;}
+.chat-msg-row.me .chat-msg-bubble:after {content:'\2713';font-size:1em;color:#ffd700;position:absolute;right:-19px;bottom:1px;}
+.chat-msg-row.them .chat-msg-bubble {background:var(--kvm-bg);color:#222;border-bottom-left-radius:2px;}
+.chat-input-row {padding:8px;background:#fff;border-top:1px solid #eee;display:flex;gap:6px;}
+.chat-input-row input {flex:1;border-radius:6px;border:1px solid #ccc;padding:6px;}
+.chat-input-row button {background:var(--kvm-blue);color:#fff;border:none;border-radius:6px;padding:6px 18px;}
+.chats-profile-bg {position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;z-index:4100;animation:fadeIn .5s;}
+.chats-profile-card {background:#fff;border-radius:18px;box-shadow:0 5px 40px rgba(0,0,0,0.15);width:360px;max-width:97vw;padding:34px 24px 28px 24px;text-align:center;animation:slideUp .5s;position:relative;}
+.chats-profile-avatar {width:90px;height:90px;border-radius:50%;margin-bottom:10px;}
+.chats-profile-blue-tick, .chats-profile-gold-tick {display:inline-block;width:26px;height:26px;vertical-align:middle;}
+.chats-profile-blue-tick svg, .chats-profile-gold-tick svg {width:100%;height:100%;}
+.chats-profile-name {font-size:1.25em;font-weight:bold;margin-bottom:8px;}
+.chats-profile-bio {color:#337ab7;font-size:1.05em;margin-bottom:12px;}
+.chats-profile-followers {font-size:1.07em;color:#337ab7;font-weight:bold;margin-bottom:10px;}
+.chats-profile-follow-btn {background:var(--kvm-blue);color:#fff;border:none;border-radius:6px;padding:8px 32px;font-size:1.08em;margin-top:6px;cursor:pointer;transition:background .2s;}
+.chats-profile-follow-btn.following {background:var(--kvm-gold);color:#222;}
+.chats-profile-close {position:absolute;top:10px;right:18px;font-size:1.5em;color:#337ab7;cursor:pointer;}
+.chats-profile-chat-btn {background:var(--kvm-blue);color:#fff;border:none;border-radius:6px;padding:8px 32px;font-size:1.05em;margin-top:12px;cursor:pointer;}
+.chats-profile-signup {margin-top:18px;}
+.live-section {margin-bottom:32px; animation:fadeIn .7s;}
+.live-header {font-size:1.3em; margin-bottom:14px;}
+.live-list {display:flex;flex-direction:column;align-items:center;max-width:480px;margin:auto;}
+.live-video-card {background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-radius:var(--radius);padding:12px;margin-bottom:18px;width:100%;text-align:center;}
+.live-title {font-weight:bold;margin:10px 0 8px 0;}
+.live-video {width:100%;border-radius:8px;min-height:140px;}
+.live-controls {display:flex;justify-content:center;margin-bottom:12px;}
+.live-controls button {background:var(--kvm-blue);color:#fff;border:none;border-radius:6px;padding:8px 16px;margin:0 4px;cursor:pointer;}
+/* Signup dialog */
+.signup-dialog-bg {position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.22);display:flex;align-items:center;justify-content:center;z-index:5000;}
+.signup-dialog-card {background:#fff;border-radius:16px;box-shadow:0 7px 50px rgba(0,0,0,0.19);width:340px;max-width:96vw;padding:34px 20px 28px 20px;text-align:center;}
+.signup-dialog-title {font-size:1.4em;font-weight:bold;margin-bottom:13px;}
+.signup-dialog-close {position:absolute;top:10px;right:18px;font-size:1.5em;color:#337ab7;cursor:pointer;}
+@keyframes fadeIn {0%{opacity:0;transform:translateY(18px);}100%{opacity:1;transform:translateY(0);}}
+@media (max-width:600px) {.header-box, main {padding:0 6px;} .explore-card, .uploaded-card, .chats-user-card, .live-video-card {min-width:90vw;} .login-dialog-inner {max-width:97vw;} #upload-form {padding:14px;}}
+</style>
+</head>
+<body>
+<header id="main-header" class="hidden">
+  <div class="header-box">
+    <img src="https://yt3.googleusercontent.com/cwou45QPyPWeA5QqGm7pJoDkvgzz2fMRv4nPtoyrBSKjPhmm1PLBwovCa7N0pkeol4dOqTie=s160-c-k-c0x00ffffff-no-rj" alt="KVM Pro Ug Logo" class="logo">
+    <span class="header-title">KVM Pro Ug</span>
+    <a href="#" class="header-links active" id="tab-home">Home <span class="tab-indicator" id="indicator-home"></span></a>
+    <a href="#" class="header-links" id="tab-explore">Explore <span class="tab-indicator hidden" id="indicator-explore"></span></a>
+    <a href="#" class="header-links" id="tab-upload">Upload <span class="tab-indicator hidden" id="indicator-upload"></span></a>
+    <a href="#" class="header-links" id="tab-chats">Chats <span class="tab-indicator hidden" id="indicator-chats"></span></a>
+    <a href="#" class="header-links" id="tab-comments">Comments</a>
+    <a href="#" class="header-links" id="tab-live">Live Activity <span class="tab-indicator hidden" id="indicator-live"></span></a>
+    <button class="logout-btn" id="logout-btn">Logout</button>
+  </div>
+</header>
+<!-- Login dialog (shown when logged out) -->
+<div id="login-dialog" class="login-dialog">
+  <div class="login-dialog-inner">
+    <img src="https://yt3.googleusercontent.com/cwou45QPyPWeA5QqGm7pJoDkvgzz2fMRv4nPtoyrBSKjPhmm1PLBwovCa7N0pkeol4dOqTie=s160-c-k-c0x00ffffff-no-rj" alt="KVM Pro Ug Logo" class="logo">
+    <div class="site-title">KVM Pro Ug</div>
+    <div class="bio">under the kvm managements ug.</div>
+    <form id="user-login-form" autocomplete="off" onsubmit="return false;">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required placeholder="Enter username">
+      <label for="password">Password</label>
+      <div class="lowerthird">
+        <input type="password" id="password" name="password" required placeholder="Enter password" style="border:none;background:transparent;color:#222;width:90%;">
+      </div>
+      <span id="login-error">Wrong password. You are locked out!</span>
+      <button type="submit">Login</button>
+    </form>
+    <div style="margin-top:17px;">
+      <button class="signup-btn" id="signup-btn">Sign Up</button>
+      <button class="guest-btn" id="guest-btn">
+        <span class="guest-icon">
+          <svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="5" fill="#337ab7"/><rect x="3" y="14" width="14" height="3" rx="1.5" fill="#337ab7"/></svg>
+        </span>
+        Guest Mode
+      </button>
+      <button class="google-btn" id="google-btn">
+        <span class="google-icon">
+          <svg viewBox="0 0 24 24"><g><circle cx="12" cy="12" r="11" fill="#fff" stroke="#eee"/><path fill="#EA4335" d="M12 7.4c1.1 0 2.2.4 3 .9l2.3-2.3C15.3 4.5 13.7 3.8 12 3.8c-2.8 0-5.2 1.6-6.3 4l2.6 2C9 8.5 10.4 7.4 12 7.4z"/><path fill="#4285F4" d="M21.6 12.2c0-.8-.1-1.6-.3-2.4H12v4.6h5.4c-.2 1.1-.9 2-1.9 2.6l2.9 2.3c1.6-1.5 2.6-3.7 2.6-6.1z"/><path fill="#FBBC05" d="M5.7 13.1c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2l-2.6-2C2.4 8.8 2 10.3 2 12s.4 3.2 1.1 4.6l2.6-2c-.2-.6-.3-1.3-.3-2.5z"/><path fill="#34A853" d="M12 21.2c1.7 0 3.3-.6 4.5-1.6l-2.9-2.3c-.7.5-1.7.8-2.6.8-2.1 0-3.9-1.4-4.6-3.2l-2.6 2C6.8 20 9.2 21.2 12 21.2z"/></g></svg>
+        </span>
+        Sign Up with Google
+      </button>
+    </div>
+  </div>
+</div>
+<!-- Signup dialog (shown when needed) -->
+<div id="signup-dialog-bg" class="signup-dialog-bg hidden">
+  <div class="signup-dialog-card" style="position:relative;">
+    <span class="signup-dialog-close" id="signup-dialog-close">&times;</span>
+    <div class="signup-dialog-title">Sign Up to Follow</div>
+    <div>
+      <button class="signup-btn" id="signup-btn2">Sign Up</button>
+      <button class="guest-btn" id="guest-btn2">
+        <span class="guest-icon">
+          <svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="5" fill="#337ab7"/><rect x="3" y="14" width="14" height="3" rx="1.5" fill="#337ab7"/></svg>
+        </span>
+        Guest Mode
+      </button>
+      <button class="google-btn" id="google-btn2">
+        <span class="google-icon">
+          <svg viewBox="0 0 24 24"><g><circle cx="12" cy="12" r="11" fill="#fff" stroke="#eee"/><path fill="#EA4335" d="M12 7.4c1.1 0 2.2.4 3 .9l2.3-2.3C15.3 4.5 13.7 3.8 12 3.8c-2.8 0-5.2 1.6-6.3 4l2.6 2C9 8.5 10.4 7.4 12 7.4z"/><path fill="#4285F4" d="M21.6 12.2c0-.8-.1-1.6-.3-2.4H12v4.6h5.4c-.2 1.1-.9 2-1.9 2.6l2.9 2.3c1.6-1.5 2.6-3.7 2.6-6.1z"/><path fill="#FBBC05" d="M5.7 13.1c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2l-2.6-2C2.4 8.8 2 10.3 2 12s.4 3.2 1.1 4.6l2.6-2c-.2-.6-.3-1.3-.3-2.5z"/><path fill="#34A853" d="M12 21.2c1.7 0 3.3-.6 4.5-1.6l-2.9-2.3c-.7.5-1.7.8-2.6.8-2.1 0-3.9-1.4-4.6-3.2l-2.6 2C6.8 20 9.2 21.2 12 21.2z"/></g></svg>
+        </span>
+        Sign Up with Google
+      </button>
+    </div>
+  </div>
+</div>
+<main id="main-content" class="hidden">
+  <!-- HOME -->
+  <section class="featured-content" id="section-home">
+    <h1>Welcome to KVM Pro Ug</h1>
+    <p>The ultimate platform for Ugandan content creators to showcase, share, and grow their audience. 
+    Discover trending videos, chat with fellow creators, and join live activities!</p>
+  </section>
+  <section class="latest-uploads" id="section-home-uploads">
+    <h2>Latest Uploads</h2>
+    <div class="uploads-list">
+      <div class="upload-card">
+        <img src="https://img.youtube.com/vi/v21kTQxJq1w/hqdefault.jpg" alt="Song Ft Piz Mallon">
+        <h3>My Song Ft Piz Mallon</h3>
+        <p>by KVM Pro Ug</p>
+      </div>
+      <div class="upload-card">
+        <img src="https://img.youtube.com/vi/EecOJ1ZCiiI/hqdefault.jpg" alt="Mix Mode Nonstop #volume 4">
+        <h3>Mix Mode Nonstop #volume 4</h3>
+        <p>by KVM Pro Ug</p>
+      </div>
+      <div class="upload-card">
+        <img src="https://img.youtube.com/vi/rtv2zxaRcl8/hqdefault.jpg" alt="Lyrics Video">
+        <h3>Lyrics Video</h3>
+        <p>by KVM Pro Ug</p>
+      </div>
+    </div>
+  </section>
+  <section class="cta-section" id="section-home-cta">
+    <h2>Become a Creator!</h2>
+    <p>Sign up and upload your first video today. Join the community and grow with us.</p>
+    <button onclick="alert('Feature coming soon!')">Get Started</button>
+  </section>
+  <!-- EXPLORE -->
+  <section class="explore-section hidden" id="section-explore">
+    <div class="explore-header">Explore Creator Works</div>
+    <input type="text" class="explore-search-bar" id="explore-search" placeholder="Search for other people's work...">
+    <div class="explore-grid" id="explore-grid"></div>
+  </section>
+  <!-- UPLOAD -->
+  <section class="upload-section hidden" id="section-upload">
+    <div class="upload-header">Upload Your Work</div>
+    <form id="upload-form" enctype="multipart/form-data" autocomplete="off">
+      <label for="upload-title">Title/Description</label>
+      <input type="text" id="upload-title" name="upload-title" placeholder="Give your upload a title or description..." style="width:100%;margin-bottom:10px;padding:7px 10px;border-radius:6px;border:1px solid #ccc;font-size:1em;">
+      <label for="file-input">Choose files (Videos, Images, Audios)</label>
+      <input type="file" id="file-input" name="files" multiple accept="video/*,image/*,audio/*">
+      <div style="margin-bottom:10px;font-size:0.97em;color:#c00;">
+        <b>Note:</b> Only upload your own work. No copyrighted materials allowed.
+      </div>
+      <div id="file-preview"></div>
+      <button type="submit" style="background:var(--kvm-blue);color:#fff;font-weight:bold;border:none;border-radius:6px;padding:8px 18px;font-size:1em;cursor:pointer;">Upload</button>
+    </form>
+    <div id="upload-success">Upload successful!</div>
+    <div id="uploaded-list" class="uploaded-list"></div>
+  </section>
+  <!-- CHATS -->
+  <section class="chats-section hidden" id="section-chats">
+    <div class="chats-header">Chats - Find Users & Start Conversations</div>
+    <div class="chats-list" id="chats-list"></div>
+  </section>
+  <!-- LIVE ACTIVITY -->
+  <section class="live-section hidden" id="section-live">
+    <div class="live-header">Live Activity Feed</div>
+    <div class="live-controls">
+      <button id="live-up">⬆️ Up</button>
+      <button id="live-down">⬇️ Down</button>
+    </div>
+    <div class="live-list" id="live-list"></div>
+  </section>
+</main>
+<div id="chat-window-bg" class="chat-window-bg hidden"></div>
+<div id="chats-profile-bg" class="chats-profile-bg hidden"></div>
+<script>
+// ========== Demo Data ==========
+const exploreVideos = [
+  {title: 'Mix Mode Vol. 5', url:'https://www.youtube.com/watch?v=Ab2rZKawzq8'},
+  {title: 'KVM Pro Ug Freestyle', url:'https://www.youtube.com/watch?v=o8VR3gl3WoQ'},
+  {title: 'My New Vlog', url:'https://www.youtube.com/watch?v=ue_Z8q5YxPE'},
+  {title: 'Dance Challenge', url:'https://www.youtube.com/watch?v=IgSEkJqGjtA'},
+  {title: 'Behind The Scenes', url:'https://www.youtube.com/watch?v=eGkPIWSvWsY'},
+  {title: 'Music Collab', url:'https://www.youtube.com/watch?v=VHEivPT8vjA'},
+  {title: 'Studio Session', url:'https://www.youtube.com/watch?v=K73Ph7gZVe0'},
+  {title: 'KVM Live Show', url:'https://www.youtube.com/watch?v=ztx2esDH4PU'},
+  {title: 'Lyrics Breakdown', url:'https://www.youtube.com/watch?v=QYMTSwhJP2k'}
+];
+const liveVideos = exploreVideos.slice();
+function getYouTubeId(url) {
+  const regex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/))([^?&"'>]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
+// Your profile for chats
+const officialAccounts = [
+  {
+    name: 'KVMPROUG',
+    avatar: 'https://yt3.googleusercontent.com/cwou45QPyPWeA5QqGm7pJoDkvgzz2fMRv4nPtoyrBSKjPhmm1PLBwovCa7N0pkeol4dOqTie=s160-c-k-c0x00ffffff-no-rj',
+    bio: "under the kvm managements ug, A photographer, editor, graphics designer, content creator, movie actor, Videograher, public figure, C.E.O KVM Studios ug.",
+    followers: 808000000,
+    verified: "blue",
+    phone: '0700000000',
+    status: 'online'
+  },
+  {
+    name: 'Manager Liz Jane',
+    avatar: 'https://randomuser.me/api/portraits/women/67.jpg',
+    bio: "Official KVM Pro Ug Manager.",
+    followers: 12000000,
+    verified: "blue",
+    phone: '0701111111',
+    status: 'online'
+  },
+  {
+    name: 'Britney Grace',
+    avatar: 'https://randomuser.me/api/portraits/women/52.jpg',
+    bio: "KVM Pro Ug Team.",
+    followers: 8900000,
+    verified: "blue",
+    phone: '0702222222',
+    status: 'online'
+  },
+  {
+    name: 'Ocean on the Beat',
+    avatar: 'https://randomuser.me/api/portraits/men/69.jpg',
+    bio: "KVM Pro Ug Official Producer.",
+    followers: 6300000,
+    verified: "blue",
+    phone: '0703333333',
+    status: 'online'
+  },
+  {
+    name: 'KVM STUDIOS UG',
+    avatar: 'https://yt3.googleusercontent.com/cwou45QPyPWeA5QqGm7pJoDkvgzz2fMRv4nPtoyrBSKjPhmm1PLBwovCa7N0pkeol4dOqTie=s160-c-k-c0x00ffffff-no-rj',
+    bio: "Official KVM Studios Uganda.",
+    followers: 9000000,
+    verified: "gold",
+    phone: '0704444444',
+    status: 'online'
+  }
+];
+// Generate 300 demo chat users, include African faces
+let demoUsers = [];
+function getRandomName() {
+  const first=["Piz","Jemmy","Kvm","DJ","Mallon","Kato","Joan","Ken","Musa","Joy","Maggie","Mary","Peter","Sam","John","Brian","Cathy","Shawn","Victor","Edith"];
+  const last=["Mallon","J","K","Ug","Pro","Ssen","Ouma","Mugerwa","Mukiibi","Kizito","Ssekyewa","Ssemanda","Mutebi","Mugisha","Namukasa","Nabirye","Kiggundu","Nandala"];
+  return first[Math.floor(Math.random()*first.length)]+" "+last[Math.floor(Math.random()*last.length)];
+}
+const africanAvatars = [
+  "https://randomuser.me/api/portraits/men/51.jpg",
+  "https://randomuser.me/api/portraits/men/70.jpg",
+  "https://randomuser.me/api/portraits/men/65.jpg",
+  "https://randomuser.me/api/portraits/women/67.jpg",
+  "https://randomuser.me/api/portraits/women/65.jpg",
+  "https://randomuser.me/api/portraits/women/52.jpg",
+  "https://randomuser.me/api/portraits/men/43.jpg",
+  "https://randomuser.me/api/portraits/women/15.jpg",
+  "https://randomuser.me/api/portraits/men/67.jpg",
+  "https://randomuser.me/api/portraits/men/69.jpg"
+];
+for(let i=0;i<300;i++) {
+  demoUsers.push({
+    name:getRandomName(),
+    avatar:i<africanAvatars.length?africanAvatars[i]:`https://randomuser.me/api/portraits/${Math.random()<0.5?'men':'women'}/${Math.floor(Math.random()*70)}.jpg`,
+    phone:'07'+Math.floor(1000000+Math.random()*9000000),
+    status:Math.random()<0.7?'online':'offline',
+    followers: Math.floor(900 + Math.random()*999999),
+    bio: ""
+  });
+}
+function getDemoComments() {
+  const texts = [
+    "KVM Pro Ug is awesome!",
+    "Loved this video!",
+    "Great work, keep it up!",
+    "So inspiring from KVM Pro Ug.",
+    "This deserves more views.",
+    "How did you edit this?",
+    "KVM Pro Ug always delivers quality.",
+    "Amazing visuals!",
+    "Super cool content.",
+    "I shared it everywhere.",
+    "Could you collaborate with me?",
+    "Can you make more of these?",
+    "🔥🔥🔥",
+    "KVM trending in Uganda!",
+    "Best creator ever!",
+    "So creative!",
+    "Really enjoyed it."
+  ];
+  let arr = [];
+  for(let i=0;i<9+Math.floor(Math.random()*6);i++) {
+    arr.push({text:texts[Math.floor(Math.random()*texts.length)],
+      views:[223000,44000,1800,9700,5600,870,12900,32000,210000,540000,67000][Math.floor(Math.random()*11)]});
+  }
+  return arr;
+}
+// ========== Auth & Signup ==========
+const correctUsername = "user";
+const correctPassword = "kvm123";
+let loggedIn = false;
+let lockedOut = false;
+let signedUp = false;
+let guestMode = false; // For demo
+let loginDialog = document.getElementById("login-dialog");
+let mainContent = document.getElementById("main-content");
+let mainHeader = document.getElementById("main-header");
+let logoutBtn = document.getElementById("logout-btn");
+let userForm = document.getElementById("user-login-form");
+let loginError = document.getElementById("login-error");
+let usernameInput = document.getElementById("username");
+let passwordInput = document.getElementById("password");
+let signupDialogBg = document.getElementById("signup-dialog-bg");
+function showLoginDialog() {
+  loginDialog.classList.remove("hidden");
+  mainContent.classList.add("hidden");
+  mainHeader.classList.add("hidden");
+  usernameInput.value = "";
+  passwordInput.value = "";
+  loginError.style.display = "none";
+}
+function showMainSite() {
+  loginDialog.classList.add("hidden");
+  mainContent.classList.remove("hidden");
+  mainHeader.classList.remove("hidden");
+  setActiveTab('home');
+}
+function persistLogin() {
+  localStorage.setItem("kvmproug_loggedin", "1");
+}
+function persistLogout() {
+  localStorage.removeItem("kvmproug_loggedin");
+}
+function checkPersistedLogin() {
+  if(localStorage.getItem("kvmproug_loggedin") === "1") {
+    loggedIn = true;
+    showMainSite();
+  }
+}
+checkPersistedLogin();
+userForm.onsubmit = function() {
+  if (lockedOut) return false;
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+  if (username === correctUsername && password === correctPassword) {
+    loggedIn = true;
+    signedUp = true;
+    persistLogin();
+    showMainSite();
+  } else {
+    lockedOut = true;
+    loginError.style.display = "inline";
+    setTimeout(() => {
+      showLoginDialog();
+      lockedOut = false;
+    }, 2000);
+  }
+  return false;
+};
+logoutBtn.onclick = function() {
+  loggedIn = false;
+  signedUp = false;
+  guestMode = false;
+  persistLogout();
+  showLoginDialog();
+};
+// Signup and guest mode
+function doSignup() {
+  signedUp = true;
+  loggedIn = true;
+  guestMode = false;
+  persistLogin();
+  showMainSite();
+}
+function doGuestMode() {
+  signedUp = false;
+  guestMode = true;
+  loggedIn = true;
+  persistLogout();
+  showMainSite();
+}
+document.getElementById("signup-btn").onclick = function() {
+  showSignupDialog();
+};
+document.getElementById("google-btn").onclick = function() {
+  showSignupDialog();
+};
+document.getElementById("guest-btn").onclick = function() {
+  doGuestMode();
+};
+document.getElementById("signup-btn2").onclick = function() {
+  doSignup();
+  hideSignupDialog();
+};
+document.getElementById("google-btn2").onclick = function() {
+  doSignup();
+  hideSignupDialog();
+};
+document.getElementById("guest-btn2").onclick = function() {
+  doGuestMode();
+  hideSignupDialog();
+};
+document.getElementById("signup-dialog-close").onclick = function() {
+  hideSignupDialog();
+};
+function showSignupDialog() {
+  signupDialogBg.classList.remove("hidden");
+}
+function hideSignupDialog() {
+  signupDialogBg.classList.add("hidden");
+}
+// ========== TABS ==========
+const tabHome = document.getElementById('tab-home');
+const tabExplore = document.getElementById('tab-explore');
+const tabUpload = document.getElementById('tab-upload');
+const tabChats = document.getElementById('tab-chats');
+const tabLive = document.getElementById('tab-live');
+const indicatorHome = document.getElementById('indicator-home');
+const indicatorExplore = document.getElementById('indicator-explore');
+const indicatorUpload = document.getElementById('indicator-upload');
+const indicatorChats = document.getElementById('indicator-chats');
+const indicatorLive = document.getElementById('indicator-live');
+const sectionHome = document.getElementById('section-home');
+const sectionHomeUploads = document.getElementById('section-home-uploads');
+const sectionHomeCTA = document.getElementById('section-home-cta');
+const sectionExplore = document.getElementById('section-explore');
+const sectionUpload = document.getElementById('section-upload');
+const sectionChats = document.getElementById('section-chats');
+const sectionLive = document.getElementById('section-live');
+function setActiveTab(tab) {
+  tabHome.classList.remove('active');
+  tabExplore.classList.remove('active');
+  tabUpload.classList.remove('active');
+  tabChats.classList.remove('active');
+  tabLive.classList.remove('active');
+  indicatorHome.classList.add('hidden');
+  indicatorExplore.classList.add('hidden');
+  indicatorUpload.classList.add('hidden');
+  indicatorChats.classList.add('hidden');
+  indicatorLive.classList.add('hidden');
+  sectionHome.classList.add('hidden');
+  sectionHomeUploads.classList.add('hidden');
+  sectionHomeCTA.classList.add('hidden');
+  sectionExplore.classList.add('hidden');
+  sectionUpload.classList.add('hidden');
+  sectionChats.classList.add('hidden');
+  sectionLive.classList.add('hidden');
+  if (tab === 'home') {
+    tabHome.classList.add('active');
+    indicatorHome.classList.remove('hidden');
+    sectionHome.classList.remove('hidden');
+    sectionHomeUploads.classList.remove('hidden');
+    sectionHomeCTA.classList.remove('hidden');
+  } else if (tab === 'explore') {
+    tabExplore.classList.add('active');
+    indicatorExplore.classList.remove('hidden');
+    sectionExplore.classList.remove('hidden');
+    renderExploreGrid(exploreVideos);
+  } else if (tab === 'upload') {
+    tabUpload.classList.add('active');
+    indicatorUpload.classList.remove('hidden');
+    sectionUpload.classList.remove('hidden');
+    renderUploadedList();
+  } else if (tab === 'chats') {
+    tabChats.classList.add('active');
+    indicatorChats.classList.remove('hidden');
+    sectionChats.classList.remove('hidden');
+    renderChatsList();
+  } else if (tab === 'live') {
+    tabLive.classList.add('active');
+    indicatorLive.classList.remove('hidden');
+    sectionLive.classList.remove('hidden');
+    renderLiveList();
+  }
+}
+tabHome.onclick = (e) => {e.preventDefault(); setActiveTab('home');};
+tabExplore.onclick = (e) => {e.preventDefault(); setActiveTab('explore');};
+tabUpload.onclick = (e) => {e.preventDefault(); setActiveTab('upload');};
+tabChats.onclick = (e) => {e.preventDefault(); setActiveTab('chats');};
+tabLive.onclick = (e) => {e.preventDefault(); setActiveTab('live');};
+// ========== EXPLORE GRID ==========
+const exploreSearch = document.getElementById('explore-search');
+const exploreGrid = document.getElementById('explore-grid');
+function renderExploreGrid(videos) {
+  exploreGrid.innerHTML = "";
+  videos.forEach((video,vidIdx) => {
+    const vidId = getYouTubeId(video.url);
+    if (!vidId) return;
+    const card = document.createElement('div');
+    card.className = 'explore-card';
+    card.innerHTML = `
+      <div class="explore-title">${video.title}</div>
+      <iframe
+        class="explore-video"
+        src="https://www.youtube.com/embed/${vidId}?autoplay=1&mute=1&loop=1&playlist=${vidId}&controls=0&modestbranding=1&playsinline=1"
+        allow="autoplay"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+      <div class="explore-comments" id="explore-comments-${vidIdx}"></div>
+    `;
+    exploreGrid.appendChild(card);
+    const commDiv = card.querySelector('.explore-comments');
+    getDemoComments().forEach(cmt=>{
+      const div = document.createElement('div');
+      div.className='explore-comment';
+      div.innerHTML = `<span>${cmt.text}</span> <span class="explore-comment-views">${cmt.views.toLocaleString()} views</span>`;
+      commDiv.appendChild(div);
+    });
+  });
+}
+exploreSearch.oninput = function() {
+  const query = exploreSearch.value.trim().toLowerCase();
+  const filtered = exploreVideos.filter(v => v.title.toLowerCase().includes(query));
+  renderExploreGrid(filtered);
+};
+// ========== UPLOAD ==========
+const fileInput = document.getElementById('file-input');
+const filePreview = document.getElementById('file-preview');
+const uploadForm = document.getElementById('upload-form');
+const uploadSuccess = document.getElementById('upload-success');
+const uploadedListDiv = document.getElementById('uploaded-list');
+let uploadedFiles = [];
+fileInput && fileInput.addEventListener('change', function() {
+  filePreview.innerHTML = '';
+  Array.from(fileInput.files).forEach(file => {
+    let el;
+    if (file.type.startsWith('image/')) {
+      el = document.createElement('img');
+      el.src = URL.createObjectURL(file);
+      el.style.width = '80px'; el.style.height = 'auto'; el.style.borderRadius = '8px';
+    } else if (file.type.startsWith('video/')) {
+      el = document.createElement('video');
+      el.src = URL.createObjectURL(file);
+      el.controls = true; el.muted = true; el.style.width = '80px'; el.style.borderRadius = '8px';
+    } else if (file.type.startsWith('audio/')) {
+      el = document.createElement('audio');
+      el.src = URL.createObjectURL(file);
+      el.controls = true; el.style.width = '160px';
+    } else {
+      el = document.createElement('div');
+      el.textContent = file.name;
+    }
+    filePreview.appendChild(el);
+  });
+});
+function renderUploadedList() {
+  uploadedListDiv.innerHTML = '';
+  if (uploadedFiles.length === 0) {
+    uploadedListDiv.innerHTML = '<div style="text-align:center;color:#888;">No uploads yet. Upload your first work!</div>';
+    return;
+  }
+  uploadedFiles.forEach((f, idx) => {
+    const card = document.createElement('div');
+    card.className = 'uploaded-card';
+    card.innerHTML = `
+      <div class="uploaded-title">${f.title}</div>
+      <div class="uploaded-media" id="uploaded-media-${idx}"></div>
+      <div class="upload-reactions">
+        <button onclick="window.reactUpload(${idx},'like')">👍 ${f.reactions.like}</button>
+        <button onclick="window.reactUpload(${idx},'love')">❤️ ${f.reactions.love}</button>
+        <button onclick="window.reactUpload(${idx},'star')">⭐ ${f.reactions.star}</button>
+      </div>
+      <div class="upload-comments">
+        <div class="upload-comments-list" id="upload-comments-list-${idx}"></div>
+        <form class="upload-comments-form" onsubmit="window.commentUpload(event,${idx})">
+          <input type="text" placeholder="Add a comment..." required>
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    `;
+    uploadedListDiv.appendChild(card);
+    const mediaDiv = document.getElementById(`uploaded-media-${idx}`);
+    f.files.forEach(fileObj => {
+      let el;
+      if (fileObj.type.startsWith('image/')) {
+        el = document.createElement('img');
+        el.src = fileObj.url;
+        el.style.width = '120px'; el.style.height = 'auto'; el.style.borderRadius = '8px'; el.style.marginRight='6px';
+      } else if (fileObj.type.startsWith('video/')) {
+        el = document.createElement('video');
+        el.src = fileObj.url;
+        el.controls = true; el.muted = true; el.style.width = '120px'; el.style.borderRadius = '8px'; el.style.marginRight='6px';
+      } else if (fileObj.type.startsWith('audio/')) {
+        el = document.createElement('audio');
+        el.src = fileObj.url;
+        el.controls = true; el.style.width = '160px';
+      } else {
+        el = document.createElement('div');
+        el.textContent = fileObj.name;
+      }
+      mediaDiv.appendChild(el);
+    });
+    const commDiv = document.getElementById(`upload-comments-list-${idx}`);
+    getDemoComments().forEach(cmt=>{
+      const div = document.createElement('div');
+      div.className='explore-comment';
+      div.innerHTML = `<span>${cmt.text}</span> <span class="upload-comments-views">${cmt.views.toLocaleString()} views</span>`;
+      commDiv.appendChild(div);
+    });
+    renderUploadComments(idx);
+  });
+}
+window.reactUpload = function(idx,type) {
+  uploadedFiles[idx].reactions[type]++;
+  renderUploadedList();
+};
+window.commentUpload = function(e,idx) {
+  e.preventDefault();
+  const val = e.target.querySelector('input').value.trim();
+  if (!val) return;
+  uploadedFiles[idx].comments.push(val);
+  renderUploadComments(idx);
+  e.target.reset();
+};
+function renderUploadComments(idx) {
+  const listDiv = document.getElementById(`upload-comments-list-${idx}`);
+  uploadedFiles[idx].comments.forEach(cmt => {
+    const div = document.createElement('div');
+    div.textContent = cmt;
+    listDiv.appendChild(div);
+  });
+}
+if (uploadSuccess) uploadSuccess.style.display = 'none';
+uploadForm && uploadForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const title = document.getElementById('upload-title').value.trim();
+  if (!title || !fileInput.files.length) return;
+  const filesArr = Array.from(fileInput.files).map(f => ({
+    name: f.name,
+    type: f.type,
+    url: URL.createObjectURL(f)
+  }));
+  uploadedFiles.push({
+    title: title,
+    files: filesArr,
+    reactions: {like:0,love:0,star:0},
+    comments: []
+  });
+  uploadSuccess.style.display = 'block';
+  setTimeout(()=>{uploadSuccess.style.display='none'; uploadForm.reset(); filePreview.innerHTML=''; renderUploadedList();},1200);
+});
+// ========== CHATS ==========
+const chatsListDiv = document.getElementById('chats-list');
+const chatWindowBg = document.getElementById('chat-window-bg');
+const chatsProfileBg = document.getElementById('chats-profile-bg');
+let chatHistory = {}; // {phone: [ {sender:'me'|'them',text} ]}
+function renderChatsList() {
+  chatsListDiv.innerHTML = '';
+  // Official accounts first
+  officialAccounts.forEach(acc => {
+    const card = document.createElement('div');
+    card.className = 'chats-user-card';
+    card.innerHTML = `
+      <img src="${acc.avatar}" class="chats-user-avatar" alt="${acc.name}">
+      ${acc.verified==="blue"?`
+      <span class="chats-blue-tick">
+        <svg viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="22" fill="#337ab7" stroke="#fff" stroke-width="2"/>
+          <polyline points="15 25 22 32 33 17" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>`:""}
+      ${acc.verified==="gold"?`
+      <span class="chats-gold-tick">
+        <svg viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="22" fill="#ffd700" stroke="#fff" stroke-width="2"/>
+          <polyline points="15 25 22 32 33 17" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>`:""}
+      <div class="chats-user-name">${acc.name}</div>
+      <div class="chats-user-status">Online ${acc.verified==="blue"?'<span style="color:#ffd700;font-size:1.08em;margin-left:6px;">✔ Verified</span>':''}${acc.verified==="gold"?'<span style="color:#ffd700;font-size:1.08em;margin-left:6px;">★ Gold Verified</span>':''}</div>
+      <div class="chats-user-followers">${acc.followers.toLocaleString()} followers</div>
+      <button class="chats-profile-btn" >View Profile</button>
+    `;
+    card.querySelector('.chats-profile-btn').onclick = (e)=>{
+      e.stopPropagation();
+      openProfileCard(acc);
+    };
+    card.onclick = ()=>openChatWindow(acc,acc.verified==="blue"||acc.verified==="gold");
+    chatsListDiv.appendChild(card);
+  });
+  // Demo users
+  demoUsers.forEach(u => {
+    const card = document.createElement('div');
+    card.className = 'chats-user-card';
+    card.innerHTML = `
+      <img src="${u.avatar}" class="chats-user-avatar" alt="${u.name}">
+      <div class="chats-user-name">${u.name}</div>
+      <div class="chats-user-status">${u.status==='online'?'Online':'Recently'}</div>
+      <div class="chats-user-followers">${u.followers.toLocaleString()} followers</div>
+      <button class="chats-profile-btn">View Profile</button>
+    `;
+    card.querySelector('.chats-profile-btn').onclick = (e)=>{
+      e.stopPropagation();
+      openProfileCard(u);
+    };
+    card.onclick = ()=>openChatWindow(u);
+    chatsListDiv.appendChild(card);
+  });
+}
+function openProfileCard(user) {
+  chatsProfileBg.innerHTML = '';
+  chatsProfileBg.classList.remove('hidden');
+  let isFollowing = false;
+  let isOfficial = user.verified === "blue" || user.verified === "gold";
+  let nameHtml = user.name;
+  if(user.verified==="blue") nameHtml += ` <span class="chats-profile-blue-tick"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#337ab7" stroke="#fff" stroke-width="2"/><polyline points="15 25 22 32 33 17" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+  if(user.verified==="gold") nameHtml += ` <span class="chats-profile-gold-tick"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#ffd700" stroke="#fff" stroke-width="2"/><polyline points="15 25 22 32 33 17" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+  const card = document.createElement('div');
+  card.className = 'chats-profile-card';
+  card.innerHTML = `
+    <span class="chats-profile-close" id="profile-close-btn">&times;</span>
+    <img src="${user.avatar}" class="chats-profile-avatar" alt="${user.name}">
+    <div class="chats-profile-name">${nameHtml}</div>
+    <div class="chats-profile-bio">${user.bio?user.bio:"No bio available."}</div>
+    <div class="chats-profile-followers">${user.followers?user.followers.toLocaleString():"---"} followers</div>
+    <button class="chats-profile-follow-btn" id="profile-follow-btn">Follow</button>
+    <button class="chats-profile-chat-btn" id="profile-chat-btn">Chat</button>
+    <div class="chats-profile-signup" id="profile-signup-flow"></div>
+  `;
+  card.querySelector('#profile-close-btn').onclick = ()=>chatsProfileBg.classList.add('hidden');
+  const followBtn = card.querySelector('#profile-follow-btn');
+  followBtn.onclick = ()=>{
+    if(!signedUp && !loggedIn) {
+      // Show signup dialog
+      showSignupDialog();
+      return;
+    }
+    isFollowing = true;
+    followBtn.textContent = 'Following';
+    followBtn.classList.add('following');
+  };
+  card.querySelector('#profile-chat-btn').onclick = ()=>{
+    chatsProfileBg.classList.add('hidden');
+    openChatWindow(user,isOfficial);
+  };
+  chatsProfileBg.appendChild(card);
+}
+function openChatWindow(user,isOfficial) {
+  chatWindowBg.innerHTML = '';
+  chatWindowBg.classList.remove('hidden');
+  let his = chatHistory[user.phone]||[];
+  function sendMsg(text) {
+    his.push({sender:'me',text});
+    renderMsgs();
+    setTimeout(()=>{
+      his.push({sender:'them',text:isOfficial?"Thank you for reaching out to "+user.name+"!":"👍"});
+      renderMsgs();
+    },700);
+    chatHistory[user.phone]=his;
+  }
+  function renderMsgs() {
+    messagesDiv.innerHTML = '';
+    his.forEach(msg => {
+      const row = document.createElement('div');
+      row.className = 'chat-msg-row '+(msg.sender==='me'?'me':'them');
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-msg-bubble';
+      bubble.textContent = msg.text;
+      row.appendChild(bubble);
+      messagesDiv.appendChild(row);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+  }
+  const win = document.createElement('div');
+  win.className = 'chat-window';
+  win.innerHTML = `
+    <div class="chat-header">${user.name}${isOfficial?'<span style="color:#ffd700;margin-left:5px;">✔</span>':''}<span style="float:right;cursor:pointer;font-weight:bold;" id="chat-close-btn">&times;</span></div>
+    <div class="chat-messages"></div>
+    <form class="chat-input-row"><input type="text" autocomplete="off" placeholder="Type a message..."><button type="submit">Send</button></form>
+  `;
+  const messagesDiv = win.querySelector('.chat-messages');
+  renderMsgs();
+  win.querySelector('.chat-input-row').onsubmit = function(e) {
+    e.preventDefault();
+    const val = win.querySelector('input').value.trim();
+    if (!val) return;
+    sendMsg(val);
+    win.querySelector('input').value = '';
+  };
+  win.querySelector('#chat-close-btn').onclick = () => chatWindowBg.classList.add('hidden');
+  chatWindowBg.appendChild(win);
+}
+// ========== LIVE ==========
+const liveListDiv = document.getElementById('live-list');
+const liveUpBtn = document.getElementById('live-up');
+const liveDownBtn = document.getElementById('live-down');
+let liveOffset = 0;
+const LIVE_PAGE_SIZE = 3;
+function renderLiveList() {
+  liveListDiv.innerHTML = '';
+  for(let i=liveOffset;i<Math.min(liveOffset+LIVE_PAGE_SIZE,liveVideos.length);i++) {
+    const video = liveVideos[i];
+    const vidId = getYouTubeId(video.url);
+    const card = document.createElement('div');
+    card.className = 'live-video-card';
+    card.innerHTML = `
+      <div class="live-title">${video.title}</div>
+      <iframe
+        class="live-video"
+        src="https://www.youtube.com/embed/${vidId}?autoplay=1&mute=1&loop=1&playlist=${vidId}&controls=1&modestbranding=1&playsinline=1"
+        allow="autoplay"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    `;
+    liveListDiv.appendChild(card);
+  }
+  liveUpBtn.disabled = liveOffset === 0;
+  liveDownBtn.disabled = liveOffset + LIVE_PAGE_SIZE >= liveVideos.length;
+}
+liveUpBtn.onclick = () => {
+  if(liveOffset>0) liveOffset--;
+  renderLiveList();
+};
+liveDownBtn.onclick = () => {
+  if(liveOffset+LIVE_PAGE_SIZE<liveVideos.length) liveOffset++;
+  renderLiveList();
+};
+// ========== INITIAL ==========
+setActiveTab('home');
+</script>
+</body>
+</html>
